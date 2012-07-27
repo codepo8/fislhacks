@@ -1,0 +1,79 @@
+<style>
+* {
+  margin:0;
+  padding: 0;
+}
+  .thumb {
+    height: 200px;
+    margin: 0;
+    display:block;
+  }
+  #foo{
+    height:200px;
+    overflow: hidden;
+  }
+  #list{
+    position: relative;
+    top: 0;
+  }
+</style>
+
+<input type="file" id="files" name="files[]" multiple />
+<div id="foo"><output id="list"></output></div>
+<input type="button" onclick="startAnimation()" />
+
+<script>
+
+  function startAnimation(){
+    var list_element = document.getElementById("list");
+    var min_y = list_element.offsetHeight;
+    var altura = 0;
+    console.log(min_y);
+    var animacao = setInterval(function(){
+      console.log('oi')
+      console.log(list_element.style.top);
+      altura -= 200;
+      console.log(altura);
+      list_element.style.top = altura + 'px';
+      if (altura <= -min_y+200){
+        altura = 0;
+      }
+    },50);
+  }
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+    // Loop through the FileList and render image files as thumbnails.
+    var tamanho = files.length;
+    var processadas = 0;
+    for (var i = 0, f; f = files[i]; i++) {
+
+      // Only process image files.
+      if (!f.type.match('image.*')) {
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (function(theFile,foo) {
+        console.log('EEE');
+        console.log(foo);
+        console.log(theFile);
+        processadas++;
+        console.log(tamanho+' '+processadas);
+        return function(e) {
+          // Render thumbnail.
+          var span = document.createElement('span');
+          span.innerHTML = ['<img class="thumb" src="', e.target.result,
+                            '" title="', escape(theFile.name), '"/>'].join('');
+          document.getElementById('list').insertBefore(span, null);
+        };
+      })(f);
+
+      // Read in the image file as a data URL.
+      reader.readAsDataURL(f);
+    }
+  }
+
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+</script>
